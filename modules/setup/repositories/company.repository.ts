@@ -6,7 +6,7 @@ export class CompanyRepository {
 
     // Get company details
     static async index() {
-        const [rows] = await db.query(
+        const [rows] = await db.query<RowDataPacket[]>(
             `SELECT *
              FROM companies
              ORDER BY company_id ASC`

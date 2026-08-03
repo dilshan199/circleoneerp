@@ -2,7 +2,7 @@ import { CompanyRepository } from "../repositories/company.repository";
 import { Company } from "../types/company.interface";
 import { CreateCompanyValidator, UpdateCompanyValidator } from "../validators/company.validator";
 
-export class CompanyService {
+export class CompanyServices {
 
     // Fetch all companies
     static async indexServices() {
