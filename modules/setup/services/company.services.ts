@@ -1,24 +1,22 @@
 import { CompanyRepository } from "../repositories/company.repository";
 import { Company } from "../types/company.interface";
-import { CompanyValidator } from "../validators/company.validator";
+import { CreateCompanyValidator, UpdateCompanyValidator } from "../validators/company.validator";
 
 export class CompanyService {
 
     // Fetch all companies
-    static async index() {
-        return await CompanyRepository.index();
+    static async indexServices() {
+        const companies = await CompanyRepository.index();
+        return companies;
     }
 
     // Store company
-    static async store(company: Company) {
+    static async storeServices(company: Company) {
 
         // Validate request
-        const validated = CompanyValidator.safeParse(company);
-        if (!validated.success) {
-            return {
-                status: 400,
-                message: validated.error.issues[0].message
-            };
+        const validation = CreateCompanyValidator.safeParse(company);
+        if (!validation.success) {
+            throw new Error(validation.error.issues[0].message);
         }
 
         // Check duplicate email
@@ -27,30 +25,26 @@ export class CompanyService {
                 company.company_email
             );
             if (existingCompany) {
-                return {
-                    status: 400,
-                    message: "Company email already exists!"
-                };
+                throw new Error("Company email already exists!");
             }
         }
-        return await CompanyRepository.store(company);
+        const createdCompany = await CompanyRepository.store(company);
+        return createdCompany;
     }
 
     // Get single company
-    static async show(company_id: number) {
-        return await CompanyRepository.show(company_id);
+    static async showServices(company_id: number) {
+        const company = await CompanyRepository.show(company_id);
+        return company;
     }
 
     // Update company
-    static async update(company: Company) {
+    static async updateServices(company: Company) {
 
         // Validate request
-        const validated = CompanyValidator.safeParse(company);
-        if (!validated.success) {
-            return {
-                status: 400,
-                message: validated.error.issues[0].message
-            };
+        const validation = UpdateCompanyValidator.safeParse(company);
+        if (!validation.success) {
+            throw new Error(validation.error.issues[0].message);
         }
 
         // Check duplicate email
@@ -61,12 +55,10 @@ export class CompanyService {
             if (
                 existingCompany && existingCompany.company_id !== company.company_id
             ) {
-                return {
-                    status: 400,
-                    message: "Company email already exists!"
-                };
+                throw new Error("Company email already exists!");
             }
         }
-        return await CompanyRepository.update(company);
+        await CompanyRepository.update(company);
+        return true;
     }
 }
