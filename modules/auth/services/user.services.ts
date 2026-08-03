@@ -1,49 +1,107 @@
+import { generateTemporaryPassword } from "@/utils/password.utils";
 import { UserRepository } from "../repositories/user.repository";
 import { User } from "../types/user.interface";
-import { hashPassword } from "@/utils/security.utils";
+import { CreateUserSchema } from "../validators/user.validator";
+import { generatePasswordExpiryDate } from "@/utils/password-expiry.utils";
 import { normalizeUsername } from "@/utils/username.utils";
+import { UserStatus } from "@/constants/role.constants";
 
-export class UserService {
-    // Fetch all users
-    static async index() {
-        const users = await UserRepository.index();
+export class UserServices {
+    // Fetch all resources
+    static async indexServices() 
+    {
+        const users = await UserRepository.indexQuery();
+
         return users;
     }
 
-    // Store a new user
-    static async store(user: User) 
+    // Store resources
+    static async storeServices(
+        user: User
+    )
     {
-        // check if user already exists
-        const existingUser = await UserRepository.findByEmail(user.user_email!);
+        const validate = CreateUserSchema.parse(user);
 
-        // if user already exists, return an error message
-        if (Array.isArray(existingUser) && existingUser.length > 0)
-        {
-            return { message: "User already exists", status: 400 }
+        const temporaryPassword = generateTemporaryPassword();
+
+        const newUser : User = {
+            role_id: validate.role_id,
+            user_avater: validate.user_avater ?? null,
+            first_name: validate.first_name,
+            last_name: validate.last_name,
+            user_email: validate.user_email,
+            user_name: validate.user_name,
+            password: temporaryPassword,
+            password_expired_at: generatePasswordExpiryDate(6),
+            account_status: UserStatus.ACTIVE
         }
 
-        // hash password
-        const hashedPassword = await hashPassword(user.password!);
-        user.password = hashedPassword;
+        // Check user already exists
+        const existingUser = await UserRepository.findByUsername(user.user_name);
 
-        // store user
-        const newUser = await UserRepository.store(user);
-        return newUser;
+        if (existingUser)
+        {
+            throw new Error(
+                "User name already exists"
+            );
+        }
+
+        const userId = await UserRepository.storeQuery(newUser);
+
+        return userId;
     }
 
-    // Fetch specific user by ID
-    static async show(user_id: number) {
-        const user = await UserRepository.show(user_id);
+    // fetch specific resources
+    static async showServices(
+        user_id: number
+    )
+    {
+        const user = UserRepository.findByIdQuery(
+            user_id
+        );
+
         return user;
     }
 
-    // Update an existing user
-    static async update(user: User) {}
+    // Update specific resources
+    static async updateServices(
+        user_id: number,
+        user: User
+    )
+    {
+        const validate = CreateUserSchema.parse(user);
 
-    // Soft delete a user by setting account_status to 'DELETED'
-    static async delete(user_id: number) {
-        const users = await UserRepository.delete(user_id);
-        return users;
+        const newUser : User = {
+            role_id: validate.role_id,
+            user_avater: validate.user_avater ?? null,
+            first_name: validate.first_name,
+            last_name: validate.last_name,
+            user_email: validate.user_email,
+            account_status: UserStatus.ACTIVE
+        }
+
+        if (newUser.user_avater)
+        {
+            const result = await UserRepository.updateWithImageQuery(user_id, newUser);
+
+            return result;
+        }
+
+        const result = await UserRepository.updateWithoutImageQuery(user_id, newUser);
+
+        return result;
+    }
+
+    // Delete resources
+    static async deleteServices(
+        user_id: number
+    )
+    {
+        const result = await UserRepository.deleteQuery(
+            user_id
+        );
+
+        return result;
     }
 
     // Generate unique username based on first name
