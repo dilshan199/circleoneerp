@@ -9,6 +9,6 @@ export const CreateCountryValidator = z.object({
         CountryStatus.ACTIVE, CountryStatus.INACTIVE, CountryStatus.DELETED]).default(CountryStatus.ACTIVE)
 });
 
-export const UpdateCountrySchema = CreateCountryValidator.extend({
+export const UpdateCountryValidator = CreateCountryValidator.extend({
     country_id: z.number()
 });
