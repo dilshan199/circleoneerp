@@ -1,6 +1,6 @@
 import { CountryRepository } from "../repositories/country.repository";
 import { Country } from "../types/country.interface";
-import { CreateCountryValidator, UpdateCountryValidator } from "../validators/country.validator";
+import { CreateCountrySchema, UpdateCountrySchema } from "../validators/country.validator";
 
 export class CountryServices {
 
@@ -14,7 +14,7 @@ export class CountryServices {
     static async storeServices(country: Country) {
 
         // Validate request
-        const validation = CreateCountryValidator.safeParse(country);
+        const validation = CreateCountrySchema.safeParse(country);
         if (!validation.success) {
             throw new Error(validation.error.issues[0].message);
         }
@@ -43,7 +43,7 @@ export class CountryServices {
     static async updateServices(country: Country) {
 
         // Validate request
-        const validation = UpdateCountryValidator.safeParse(country);
+        const validation = UpdateCountrySchema.safeParse(country);
         if (!validation.success) {
             throw new Error(validation.error.issues[0].message);
         }

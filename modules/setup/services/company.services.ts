@@ -1,6 +1,6 @@
 import { CompanyRepository } from "../repositories/company.repository";
 import { Company } from "../types/company.interface";
-import { CreateCompanyValidator, UpdateCompanyValidator } from "../validators/company.validator";
+import { CreateCompanySchema, UpdateCompanySchema } from "../validators/company.validator";
 
 export class CompanyServices {
 
@@ -14,7 +14,7 @@ export class CompanyServices {
     static async storeServices(company: Company) {
 
         // Validate request
-        const validation = CreateCompanyValidator.safeParse(company);
+        const validation = CreateCompanySchema.safeParse(company);
         if (!validation.success) {
             throw new Error(validation.error.issues[0].message);
         }
@@ -42,7 +42,7 @@ export class CompanyServices {
     static async updateServices(company: Company) {
 
         // Validate request
-        const validation = UpdateCompanyValidator.safeParse(company);
+        const validation = UpdateCompanySchema.safeParse(company);
         if (!validation.success) {
             throw new Error(validation.error.issues[0].message);
         }

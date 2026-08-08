@@ -6,7 +6,7 @@ export class CountryRepository {
 
     // Fetch all countries
     static async index() {
-        const [rows] = await db.query(
+        const [rows] = await db.query<RowDataPacket[]>(
             `SELECT *
              FROM countries
              WHERE country_status != 'DELETED'

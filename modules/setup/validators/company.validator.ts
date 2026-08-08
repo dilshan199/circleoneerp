@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Company Validator
-export const CreateCompanyValidator = z.object({
+export const CreateCompanySchema = z.object({
     company_logo: z.string().optional(),
     company_name: z.string().trim().min(2, "Company name is required!").max(255),
     company_address: z.string().trim().min(2, "Company address is required!").max(255),
@@ -14,6 +14,6 @@ export const CreateCompanyValidator = z.object({
     tax_number: z.string().trim().max(255).optional().or(z.literal(""))
 });
 
-export const UpdateCompanyValidator = CreateCompanyValidator.extend({
+export const UpdateCompanySchema = CreateCompanySchema.extend({
     company_id: z.number()
 });
